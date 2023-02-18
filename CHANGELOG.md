@@ -1,4 +1,3 @@
-Leading Systems Merconis Custom Hobby Eberhardt changelog
+Leading Systems Merconis Custom Cash Connect changelog
 ===========================================
 
-### 1.0.0 (2019-04-01)
