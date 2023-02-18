@@ -1,0 +1,35 @@
+{
+  "name": "leadingsystems/merconis-custom-hobbyeberhardt",
+  "description": "Merconis custom module for Hobby Eberhardt",
+  "keywords": [
+    "merconis",
+    "leading systems"
+  ],
+  "type": "contao-bundle",
+  "license": "proprietary",
+  "require": {
+    "php": ">=7.0.0",
+    "contao/core-bundle": "~4.4",
+    "leadingsystems/contao-merconis": "^4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "LeadingSystems\\MerconisCustomBundle\\": "src/"
+    },
+    "classmap": [
+      "src/Resources/contao/"
+    ],
+    "exclude-from-classmap": [
+      "src/Resources/contao/config/",
+      "src/Resources/contao/dca/",
+      "src/Resources/contao/languages/",
+      "src/Resources/contao/templates/"
+    ]
+  },
+  "extra": {
+    "contao-manager-plugin": "LeadingSystems\\MerconisCustomBundle\\ContaoManager\\Plugin",
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
+  }
+}
