@@ -32,8 +32,10 @@ class merconis_custom_helper
             $arr_flexContentsFlat[$arr_flexContent[0]] = $arr_flexContent[1];
         }
 
-        $str_warengruppe = $arr_flexContentsFlat['flexContent7'];
-        $str_lieferant = substr($arr_flexContentsFlat['flexContent8'], 0, strpos($arr_flexContentsFlat['flexContent8'], '-') ?: 0);
+        /* -->
+         * This example is just for inspiration:
+         */
+
         $str_alias = \StringUtil::generateAlias($obj_dbres_productData->lsShopProductProducer).'-'.\StringUtil::generateAlias($arr_flexContentsFlat['flexContent1']).'-'.$obj_dbres_productData->alias;
         if (strlen($str_alias) > 128) {
             $str_aliasSuffix = '-'.$obj_dbres_productData->id;
@@ -44,101 +46,17 @@ class merconis_custom_helper
             ->prepare("
                 UPDATE    `tl_ls_shop_product`
                 SET       `alias` = ?,
-                          `alias_de` = ?,
-                          `hobbyEberhardtWarengruppe` = ?,
-                          `hobbyEberhardtLieferant` = ?
+                          `alias_de` = ?
                 WHERE     `id` = ?
             ")
             ->execute(
                 $str_alias,
                 $str_alias,
-                $str_warengruppe,
-                $str_lieferant,
                 $int_productId
             );
-    }
-
-    public static function merconis_hook_crossSellerHookSelection($str_productListId) {
-        $arr_products = [];
-
-        if ($str_productListId !== 'crossSeller_16') {
-            return $arr_products;
-        }
-
-        global $objPage;
-
-        if (
-            !$objPage->ls_shop_hobbyEberhardt_warengruppe
-            && !$objPage->ls_shop_hobbyEberhardt_lieferant
-        ) {
-            return $arr_products;
-        }
-
-        $arr_whereConditions = [];
-        $arr_whereConditionValues = [];
-
-        if ($objPage->ls_shop_hobbyEberhardt_warengruppe) {
-            $arr_whereConditions[] = "`hobbyEberhardtWarengruppe` = ?";
-            $arr_whereConditionValues[] = $objPage->ls_shop_hobbyEberhardt_warengruppe;
-        }
-
-        if ($objPage->ls_shop_hobbyEberhardt_lieferant) {
-            $arr_whereConditions[] = "`hobbyEberhardtLieferant` = ?";
-            $arr_whereConditionValues[] = $objPage->ls_shop_hobbyEberhardt_lieferant;
-        }
-
-        if ($objPage->ls_shop_hobbyEberhardt_produkteOhneBestandAusblenden) {
-            $arr_whereConditions[] = "`lsShopProductStock` > 0";
-        }
-
-        if (\Input::post('FORM_SUBMIT') == 'show-only-sale') {
-            if (!isset($_SESSION['merconis_custom_hobby_eberhardt']['bln_showOnlySale']) || !$_SESSION['merconis_custom_hobby_eberhardt']['bln_showOnlySale']) {
-                $_SESSION['merconis_custom_hobby_eberhardt']['bln_showOnlySale'] = true;
-            } else {
-                $_SESSION['merconis_custom_hobby_eberhardt']['bln_showOnlySale'] = false;
-            }
-
-            \Controller::reload();
-        }
-
-        if ($_SESSION['merconis_custom_hobby_eberhardt']['bln_showOnlySale']) {
-            $obj_dbres_products = \Database::getInstance()
-                ->prepare("
-                    SELECT      `id`
-                    FROM        `tl_ls_shop_product`
-                    WHERE       ".implode(' AND ', $arr_whereConditions)."
-                        AND     `lsShopProductIsOnSale` != ''
-                ")
-                ->execute(
-                    $arr_whereConditionValues
-                );
-
-            if (!$obj_dbres_products->numRows) {
-//                $_SESSION['merconis_custom_hobby_eberhardt']['bln_showOnlySale'] = false;
-                $_SESSION['merconis_custom_hobby_eberhardt']['str_showOnlySaleMessage'] = '<p class="error">In dieser Kategorie gibt es im Moment keine TOP-Angebote</p>';
-            } else {
-                $_SESSION['merconis_custom_hobby_eberhardt']['str_showOnlySaleMessage'] = '<p class="success">Im Moment werden nur die TOP-Angebote dieser Kategorie angezeigt</p>';
-            }
-        }
-
-        if (!$_SESSION['merconis_custom_hobby_eberhardt']['bln_showOnlySale'] || !$obj_dbres_products->numRows) {
-            $obj_dbres_products = \Database::getInstance()
-                ->prepare("
-                        SELECT      `id`
-                        FROM        `tl_ls_shop_product`
-                        WHERE       ".implode(' AND ', $arr_whereConditions)."
-                    ")
-                ->execute(
-                    $arr_whereConditionValues
-                );
-        }
-
-
-        while ($obj_dbres_products->next()) {
-            $arr_products[] = $obj_dbres_products->id;
-        }
-
-        return $arr_products;
+        /*
+         * <--
+         */
     }
 
     public static function merconis_hook_afterCheckout($int_orderId, $arr_order) {
@@ -279,19 +197,5 @@ class merconis_custom_helper
         $arr_item['extendedInfo']['_mainImage'] = $bln_imageExists ? $str_imageToShowFullPath : ($str_placeholderImageFullPath ? $str_placeholderImageFullPath : '');
 
         return $arr_item;
-    }
-
-    public static function merconis_hook_checkIfPaymentOrShippingMethodIsAllowed($arr_method, $str_type) {
-        $obj_checkoutData = \System::importStatic('Merconis\Core\ls_shop_checkoutData');
-
-        if (
-            $str_type === 'payment'
-            && $arr_method['alias'] === 'zahlung-bei-abholung'
-            && (int) $obj_checkoutData->arrCheckoutData['selectedShippingMethod'] !== 3
-        ) {
-            return false;
-        }
-
-        return true;
     }
 }
