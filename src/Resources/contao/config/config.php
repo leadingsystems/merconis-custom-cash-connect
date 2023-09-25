@@ -14,9 +14,5 @@ if (TL_MODE === 'FE') {
 $GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingProductData'][] = ['Merconis\Custom\merconis_custom_helper', 'modifyImportedProductRecord'];
 $GLOBALS['MERCONIS_HOOKS']['import_afterInsertingProductData'][] = ['Merconis\Custom\merconis_custom_helper', 'modifyImportedProductRecord'];
 
-$GLOBALS['MERCONIS_HOOKS']['crossSellerHookSelection'][] = array('Merconis\Custom\merconis_custom_helper', 'merconis_hook_crossSellerHookSelection');
-
 $GLOBALS['MERCONIS_HOOKS']['afterCheckout'][] = array('Merconis\Custom\merconis_custom_helper', 'merconis_hook_afterCheckout');
 $GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder'][] = array('Merconis\Custom\merconis_custom_helper', 'merconis_hook_storeCartItemInOrder');
-
-$GLOBALS['MERCONIS_HOOKS']['checkIfPaymentOrShippingMethodIsAllowed'][] = array('Merconis\Custom\merconis_custom_helper', 'merconis_hook_checkIfPaymentOrShippingMethodIsAllowed');
