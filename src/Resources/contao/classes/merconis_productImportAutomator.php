@@ -106,11 +106,6 @@ class merconis_productImportAutomator
                 \System::log('Validating import file ('.basename($this->str_pathToFileCurrentlyBeingProcessed).'): VALID', 'MERCONIS PRODUCT IMPORT AUTOMATOR', TL_MERCONIS_IMPORTER);
                 return;
             } else {
-                /*
-                 * If the current import file is invalid, we move it back to the input folder and reset the status.
-                 * The next calls will then do exactly the same over and over until someone fixes or removes the invalid
-                 * import file in/from the input folder
-                 */
                 $this->moveInvalidFile();
                 ls_shop_singularStorage::getInstance()->str_productImportAutomatorStatus = null;
                 $this->obj_apiReceiver->error();
@@ -191,9 +186,11 @@ class merconis_productImportAutomator
     {
         /*
          * The safest thing would be to move the invalid file back to the input folder because this would make sure that
-         * the following files could not be imported without fixing the issue first. However, if we have an input file
-         * holding all existing products every morning, we can just skip the invalid file and wait for someone to fix
-         * the issue and with the next complete import everything will be just fine.
+         * the following files could not be imported without fixing the issue first. If we only had delta imports where
+         * only modified products are included, this would be absolutely necessary because otherwise it could happen that
+         * some changes would never actually be imported if no one ever fixed the problem. However, if we have a full
+         * import (i.e. an input file holding all existing products) periodically, e.g. every morning, we can just skip
+         * the invalid file and wait for someone to fix the issue and with the next full import everything will be just fine.
          *
         $str_movedBackFilename = $this->str_pathToInputFolder . '/' . basename($this->str_pathToFileCurrentlyBeingProcessed);
         rename($this->str_pathToFileCurrentlyBeingProcessed, $str_movedBackFilename);
